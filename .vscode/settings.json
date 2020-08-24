@@ -8,5 +8,6 @@
     "search.exclude": {
         "**/target": true
     },
-    "lldb.verboseLogging": true
+    "lldb.verboseLogging": true,
+    "liveServer.settings.port": 5939
 }

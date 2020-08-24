@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<head lang="zh-CN">
+    <title>在线MD5哈希计算-By_WASM</title>
+    <meta charset="utf-8">
+    <style>
+        input#hashStrID {
+            width: 300px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        input[value=submit] {
+            border-radius: 7px;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <label for="Text">Enter your Text for hash computing</label></br>
+        <input type="text" name="hashStr" id="hashStrID">
+        <input type="button" onclick="hashSum()" value="submit">
+    </form>
+    <table>
+        <tr>
+            <th>Sort</th>
+            <th>Value</th>
+        </tr>
+
+        <tr>
+            <td>size</td>
+            <td id="sizeval"></td>
+        </tr>
+        <tr>
+            <td>MD5</td>
+            <td id="md5val"></td>
+        </tr>
+        <tr>
+            <td>SHA1</td>
+            <td id="sha1val"></td>
+        </tr>
+        <tr>
+            <td>SHA256</td>
+            <td id="sha256val"></td>
+        </tr>
+        <tr>
+            <td>SHA512</td>
+            <td id="sha512val"></td>
+        </tr>
+    </table>
+
+
+    <script>
+        const sizeval = document.getElementById("sizeval");
+        const md5val = document.getElementById("md5val");
+        const sha1val = document.getElementById("sha1val");
+        const sha256val = document.getElementById("sha256val");
+        const sha512val = document.getElementById("sha512val");
+
+        function UpdateHashVal(hashData) {
+            hashData = JSON.parse(hashData);
+            sizeval.textContent = hashData.length;
+            md5val.textContent = hashData.md5;
+            sha1val.textContent = hashData.sha1;
+            sha256val.textContent = hashData.sha256;
+            sha512val.textContent = hashData.sha512;
+        }
+
+        function hashSum() {
+            ajax({
+                url: "/",
+                type: 'post',
+                data: {
+                    hashStr: document.getElementById("hashStrID").value
+                },
+                dataType: 'json',
+                timeout: 10000,
+                contentType: "application/json",
+                success: UpdateHashVal,
+                error: function (e) { console.log(e) }
+            });
+        }
+
+    </script>
+    <script>
+        // see: https://www.cnblogs.com/qing-5/p/11368009.html
+        // usage: ajax({ url: "http://localhost:3000/Login", type: 'post', data: { username: 'xiaoming', password: 'fsdfsdf', }, dataType: 'json', timeout: 10000, contentType:"application/json", success: doSth(data), error: function(e) {console.log(e)} });
+        function ajax(options) {
+            // 设置默认值
+            options = options || {};
+            options.type = (options.type || "GET").toUpperCase();
+            options.dataType = options.dataType || "json";
+
+            let params = formatParams(options.data);
+            let xhr = new XMLHttpRequest;
+
+            // 发送
+            if (options.type == "GET") {
+                xhr.open("GET", options.url + '?' + params, true);
+                xhr.send();
+            } else if (options.type == "POST") {
+                xhr.open("POST", options.url, true);
+                xhr.setRequestHeader("Content-Type", options.contentType || "application/x-www-form-urlencoded");
+                xhr.send(params);
+            }
+
+            // 设置有效时间
+            setTimeout(function () {
+                if (xhr.readyState != 4) xhr.abort();
+            }, options.timeout)
+
+
+            // 接收
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    let status = xhr.status;
+                    if (status >= 200 && status < 300 || status == 304) {
+                        options.success && options.success(xhr.responseText, xhr.responseXML);
+                    } else {
+                        options.error && options.error(status);
+                    }
+                }
+            }
+
+
+            // 格式化请求参数
+            function formatParams(data) {
+                var arr = [];
+                for (let key in data) {
+                    arr.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+                }
+                arr.push(("v=" + Math.random()).replace(".", ""));   // 毫秒作为随机参数
+                return arr.join("&");
+            }
+
+
+        }
+    </script>
+</body>

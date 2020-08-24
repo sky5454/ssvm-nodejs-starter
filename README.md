@@ -18,6 +18,7 @@ $ docker run -p 3000:3000 --rm -it -v $(pwd):/app secondstate/ssvm-nodejs-starte
 (docker) # ssvmup build
 (docker) # node node/app.js
 ```
+in `Windows` PowerShell, please use `${pwd}` to replace $(pwd)
 
 From a second terminal window, you can test the local server.
 
